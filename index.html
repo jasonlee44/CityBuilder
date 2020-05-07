@@ -3,23 +3,28 @@
 <head>
     <title>Game</title>
     <link href="https://fonts.googleapis.com/css?family=Baloo+Bhaina+2&display=swap" rel="stylesheet">
+             
 </head>
 <body>
+    <!-- 4 sections at the top -->
     <h1 class='title'>Welcome to my game!</h1>
-    <div class="top-section">
-        <div class='top-section-left' style="float:left;">
-            <div>Revenue: </div>
-            <div>Infrastructure: </div>
-        </div>
-        <div class='top-section-right'style="float:right;">
-            <div>Cash: </div>
-            <div>Harm: </div>
+    <div class="top-sections" id="revenue" style="float:left;">Revenue: $0/h</div>
+    <div class="top-sections" id="money" style="float:right;">Money: $0</div> <br><br>
+    <div class="top-sections" id="infrastructure" style="float:left;">Infrastructure: 0</div>
+    <div class="top-sections" id="harm" style="float:right;">Harm: 0%</div> <br><br>
+
+    <!-- Store button -->
+    <button id="storeBtn">Store</button>
+
+    <!-- Store pop-up -->
+    <div id="myModal" class="modal">
+        <!-- Pop-up content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>Some text in the Modal..</p>
         </div>
     </div>
 
-    <div>
-        
-    </div>
 </body>
 </html>
 <style>
@@ -28,21 +33,90 @@
         margin: 6%;
         background-color: rgb(60, 235, 162);
     }
-
-    .top-section{
-        width:90%;
+    .top-sections{
+        font-size: 30px; 
+        border: solid 1px black;
+        border-radius: 25px;
+        height:53px;
+        width: 250px;
+        text-align: left;
+        padding-left: 10px;
+        
+    }
+    /* The Modal (background) */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        padding-top: 100px; /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
     }
 
-    /* maybe combine with top-section class */
-    .top-section-left{ 
-        font-size: 35px;
+    /* Modal Content */
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    #storeBtn{
+        font-family: 'Baloo Bhaina 2';
+        margin-top:50%;
+        margin-left:88%;
+        width: 120px;
+        height: 120px;
         border: 1px solid black;
+        border-radius: 13%;
+        background-color: rgb(255, 222, 182);
+        font-size: 30px;
     }
-    /* maybe combine with top-section class */
-    .top-section-right{
-        font-size: 35px;
-    }
-
 </style>
 <script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("storeBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal 
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
 </script>
