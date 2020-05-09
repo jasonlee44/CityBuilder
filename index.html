@@ -9,9 +9,18 @@
     <!-- 4 sections at the top -->
     <h1 class='title'>Welcome to my game!</h1>
     <div class="top-sections" id="revenue" style="float:left;">Revenue: $0/h</div>
-    <div class="top-sections" id="money" style="float:right;">Money: $0</div> <br><br>
+    <div class="top-sections" id="money" style="float:right;">Money: $0 <img src='./images/money.png' class='moneyImg'></div> <br><br>
     <div class="top-sections" id="infrastructure" style="float:left;">Infrastructure: 0</div>
-    <div class="top-sections" id="harm" style="float:right;">Harm: 0%</div> <br><br>
+    <div class="top-sections" id="harm" style="float:right;">Harm: 0% <img src='./images/warning.png' class='harmImg'></div> <br><br>
+
+    <div class='middle-section'>Hello!</div>
+
+    <!-- Settings button -->
+    <button class='settingsBtn'><img src="./images/settings.png" class='settingsImg'></button>
+
+    <!-- Save button -->
+    <button class='saveBtn' onclick="save()"><img src="./images/save.png" class='saveImg'></button><br><br><br><br>
+    <div class="saveText"></div>
 
     <!-- Store button -->
     <button id="storeBtn">Store</button>
@@ -21,29 +30,30 @@
         <!-- Pop-up content -->
         <div class="modal-content">
             <span class="close">&times;</span>
-            <p>Some text in the Modal..</p>
+            <h2 style='text-align: center;'>Store</h2>
         </div>
     </div>
-
 </body>
 </html>
+
 <style>
     body {
         font-family: 'Baloo Bhaina 2';
         margin: 6%;
-        background-color: rgb(60, 235, 162);
+        margin-top: 3%;
+        background-color: rgb(170, 170, 170);
     }
     .top-sections{
         font-size: 30px; 
-        border: solid 1px black;
+        border: solid 2px black;
         border-radius: 25px;
         height:53px;
-        width: 250px;
+        width: 300px;
         text-align: left;
         padding-left: 10px;
         
     }
-    /* The Modal (background) */
+    /* Store pop=up (background) */
     .modal {
         display: none; /* Hidden by default */
         position: fixed; /* Stay in place */
@@ -58,9 +68,9 @@
         background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
     }
 
-    /* Modal Content */
+    /* Pop-up Content */
     .modal-content {
-        background-color: #fefefe;
+        background-color: rgb(60, 235, 162);
         margin: auto;
         padding: 20px;
         border: 1px solid #888;
@@ -69,7 +79,7 @@
 
     /* The Close Button */
     .close {
-        color: #aaaaaa;
+        color: #ffffff;
         float: right;
         font-size: 28px;
         font-weight: bold;
@@ -83,8 +93,8 @@
 
     #storeBtn{
         font-family: 'Baloo Bhaina 2';
-        margin-top:50%;
-        margin-left:88%;
+        margin-top:10%;
+        margin-left:94%;
         width: 120px;
         height: 120px;
         border: 1px solid black;
@@ -92,6 +102,74 @@
         background-color: rgb(255, 222, 182);
         font-size: 30px;
     }
+
+    #storeBtn:hover{
+        opacity: 0.5;
+    }
+
+    /* Icon images */
+    .moneyImg{
+        width: 90px;
+        height: 85px;
+        float: right;  
+    }
+    .harmImg{
+        width: 65px;
+        height: 60px;
+        float: right;
+    }
+
+    /* Settings button */
+    .settingsImg{
+        height: 80px;
+        width: 80px;
+        text-align: center;
+    }
+    .settingsImg:hover{
+        opacity: 0.5;
+    }
+    .settingsBtn{
+        margin-top: 30px;
+        float:right;
+        height: 80px;
+        width: 80px;
+        background-color: Transparent;
+        border: none;
+        outline: none;
+    }
+    
+    /* Save button */
+    .saveImg{
+        height: 80px;
+        width: 80px;
+        text-align: center;
+    }
+    .saveImg:hover{
+        opacity: 0.5;
+    }
+    .saveBtn{
+        margin-top: 30px;
+        float: right;
+        height: 80px;
+        width: 80px;
+        background-color: Transparent;
+        border: none;
+        outline: none;
+    }
+    .saveText{
+        margin-left: 90%;
+    }
+
+    /* Middle section */
+    .middle-section{
+        margin-top: 30px;
+        margin-left: 15px;
+        border: black 1px solid;
+        height: 500px;
+        width: 85%;
+        float: left;
+    }
+
 </style>
 <script>
     // Get the modal
@@ -118,5 +196,15 @@
         if (event.target == modal) {
             modal.style.display = "none";
         }
+    }
+
+    //Save function
+    function save(){
+        console.log("Saving...");
+        document.getElementsByClassName('saveText')[0].innerHTML = "Saving..."
+        // push data to firebase
+        console.log("Saved")
+        document.getElementsByClassName('saveText')[0].innerHTML = "Game Saved"
+        
     }
 </script>
