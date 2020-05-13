@@ -5,18 +5,20 @@
     <link href="https://fonts.googleapis.com/css?family=Baloo+Bhaina+2&display=swap" rel="stylesheet">
              
 </head>
-<body>
+<body onload="update()">
     <!-- 4 sections at the top -->
     <h1 class='title'>Welcome to my game!</h1>
     <div class="top-sections" id="revenue" style="float:left;">Revenue: $0/h</div>
     <div class="top-sections" id="money" style="float:right;">Money: $0 <img src='./images/money.png' class='moneyImg'></div> <br><br>
-    <div class="top-sections" id="infrastructure" style="float:left;">Infrastructure: 0</div>
+    <div class="top-sections" id="properties" style="float:left;">Properties: 0</div>
     <div class="top-sections" id="harm" style="float:right;">Harm: 0% <img src='./images/warning.png' class='harmImg'></div> <br><br>
 
-    <div class='middle-section'>Hello!</div>
+    <div class='middle-section'>
+
+    </div>
 
     <!-- Settings button -->
-    <button class='settingsBtn'><img src="./images/settings.png" class='settingsImg'></button>
+    <button class='settingsBtn' onclick="settings()"><img src="./images/settings.png" class='settingsImg'></button>
 
     <!-- Save button -->
     <button class='saveBtn' onclick="save()"><img src="./images/save.png" class='saveImg'></button><br><br><br><br>
@@ -41,7 +43,7 @@
         font-family: 'Baloo Bhaina 2';
         margin: 6%;
         margin-top: 3%;
-        background-color: rgb(170, 170, 170);
+        background-color: white;
     }
     .top-sections{
         font-size: 30px; 
@@ -198,7 +200,7 @@
         }
     }
 
-    //Save function
+    //Click save button
     function save(){
         console.log("Saving...");
         document.getElementsByClassName('saveText')[0].innerHTML = "Saving..."
@@ -207,4 +209,36 @@
         document.getElementsByClassName('saveText')[0].innerHTML = "Game Saved"
         
     }
+
+    //Click settings button
+    function settings(){
+        console.log("Settings")
+    }
+
+    //firebase will store variables below
+    var money = 0; 
+    var properties = 1;
+    var revenue = 0;
+    var harm = 0;
+
+    function update(){
+        document.getElementsByClassName('middle-section')[0].innerHTML = ""
+        for(i = 0; i<properties; i++){
+            document.getElementsByClassName('middle-section')[0].innerHTML += "<button onclick='manual_click()'>Click me</button>"
+        }
+        money++;
+        document.getElementById("money").innerHTML = "Money: $" + money
+    }
+
+    function manual_click(){
+        money++;
+        console.log("Add 1")
+        document.getElementById("money").innerHTML = "Money: $" + money
+    }
+
+    for (i=0; i<1000; i++){
+        document.getElementById("revenue").innerHTML = "Revnue: $" + i + "/h"
+    }
+
+    setInterval(update, 1000)
 </script>
