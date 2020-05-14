@@ -2,8 +2,11 @@
 <html>
 <head>
     <title>Game</title>
+    <!-- HERE ARE YOUR FIREBASE and GOOGLE AUTHENICATION IMPORTS -->
+    <script src="https://www.gstatic.com/firebasejs/5.7.3/firebase.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+
     <link href="https://fonts.googleapis.com/css?family=Baloo+Bhaina+2&display=swap" rel="stylesheet">
-             
 </head>
 <body onload="update()">
     <!-- 4 sections at the top -->
@@ -18,10 +21,16 @@
     </div>
 
     <!-- Settings button -->
-    <button class='settingsBtn' onclick="settings()"><img src="./images/settings.png" class='settingsImg'></button>
+    <button class='settingsBtn' onclick="settings()">
+        <img src="./images/settings.png" class='settingsImg'>
+    </button>
 
     <!-- Save button -->
-    <button class='saveBtn' onclick="save()"><img src="./images/save.png" class='saveImg'></button><br><br><br><br>
+    <button class='saveBtn' disabled onclick="save()">
+        <img src="./images/save.png" class='saveImg'>
+    </button>
+    <br><br><br><br>
+
     <div class="saveText"></div>
 
     <!-- Store button -->
@@ -35,6 +44,10 @@
             <h2 style='text-align: center;'>Store</h2>
         </div>
     </div>
+
+    <button onclick="signin()">Sign In</button>
+    <button onclick="signout()">Sign Out</button>
+
 </body>
 </html>
 
@@ -171,9 +184,21 @@
         width: 85%;
         float: left;
     }
-
 </style>
 <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyDdXDWLSYzTPaO7il2cL6TRf4rrTlhbhHM",
+        authDomain: "unit3-8d361.firebaseapp.com",
+        databaseURL: "https://unit3-8d361.firebaseio.com",
+        projectId: "unit3-8d361",
+        storageBucket: "unit3-8d361.appspot.com",
+        messagingSenderId: "410317006241",
+        appId: "1:410317006241:web:909ff04ac498f462a0d7e0"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
     // Get the modal
     var modal = document.getElementById("myModal");
 
@@ -202,9 +227,7 @@
 
     //Click save button
     function save(){
-        console.log("Saving...");
-        document.getElementsByClassName('saveText')[0].innerHTML = "Saving..."
-        // push data to firebase
+        firebase.database().ref('users/' + userId).update({money: money}).catch(function(error){alert("Error occured" + error);});
         console.log("Saved")
         document.getElementsByClassName('saveText')[0].innerHTML = "Game Saved"
         
@@ -216,19 +239,43 @@
     }
 
     //firebase will store variables below
-    var money = 0; 
+    var money = 0;
     var properties = 1;
     var revenue = 0;
     var harm = 0;
 
-    function update(){
+    var count1 = 0; //counter for removing 'saved' text from screen
+    var count2 = 0; //counter for auto-saving
+
+    //Updating the game
+    function update(){ 
         document.getElementsByClassName('middle-section')[0].innerHTML = ""
         for(i = 0; i<properties; i++){
             document.getElementsByClassName('middle-section')[0].innerHTML += "<button onclick='manual_click()'>Click me</button>"
         }
         money++;
         document.getElementById("money").innerHTML = "Money: $" + money
-    }
+
+        //removing the 'saved' text
+        if(document.getElementsByClassName('saveText')[0].innerHTML === "Game Saved"){
+            console.log("count++")
+            count1 ++;
+        }
+        if(count1 === 3){
+            document.getElementsByClassName('saveText')[0].innerHTML = " "
+            count1 = 0;
+        }
+
+        //auto-saving game
+        if (count2 !== 60){ //auto-save every minute
+            count2 ++;
+        }
+        else{
+            save()
+            count2 = 0;
+        }
+
+    }//end of update function
 
     function manual_click(){
         money++;
@@ -240,5 +287,43 @@
         document.getElementById("revenue").innerHTML = "Revnue: $" + i + "/h"
     }
 
-    setInterval(update, 1000)
+    setInterval(update, 1000) //update the game every 1000ms
+
+    // Check to see if you are logged in
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user == null) { //if not logged in
+            signin();
+        } 
+        else { //if logged in
+            userId = user.uid;
+            userEmail = user.email // you can also get .displayName, .photoURL, .email
+            firebase.database().ref('users/' + userId).update({email: userEmail}).catch(function(error){alert("Error occured" + error);});
+            firebase.database().ref('users/' + userId).update({name: user.displayName}).catch(function(error){alert("Error occured" + error);});
+            
+            //Get value of money
+            firebase.database().ref('users/' + userId).once('value', function(snapshot) {
+                money = snapshot.val()['money'];
+                document.getElementsByClassName("saveBtn")[0].disabled = false;
+            });
+        }
+    });
+
+    function signin() {
+        var provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithRedirect(provider).then(function(result) { 
+        });
+    }
+
+    function signout(){
+        firebase.auth().signOut().then(function() {
+        // Sign-out successful.
+        }).catch(function(error) {
+        // An error happened.
+        });
+        redirect()
+    }
+
+    window.onbeforeunload = function() {
+        save()
+    }
 </script>
