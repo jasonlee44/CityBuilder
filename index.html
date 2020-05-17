@@ -20,10 +20,10 @@
 
     </div>
 
-    <!-- Settings button -->
+    <!-- Settings button
     <button class='settingsBtn' onclick="settings()">
         <img src="./images/settings.png" class='settingsImg'>
-    </button>
+    </button> -->
 
     <!-- Save button -->
     <button class='saveBtn' disabled onclick="save()">
@@ -225,40 +225,23 @@
         }
     }
 
-    //Click save button
-    function save(){
-        firebase.database().ref('users/' + userId).update({money: money}).catch(function(error){alert("Error occured" + error);});
-        console.log("Saved")
-        document.getElementsByClassName('saveText')[0].innerHTML = "Game Saved"
-        
-    }
-
-    //Click settings button
-    function settings(){
-        console.log("Settings")
-    }
-
     //firebase will store variables below
     var money = 0;
-    var properties = 1;
     var revenue = 0;
     var harm = 0;
 
     var count1 = 0; //counter for removing 'saved' text from screen
     var count2 = 0; //counter for auto-saving
 
+    var options = []
+
     //Updating the game
     function update(){ 
-        document.getElementsByClassName('middle-section')[0].innerHTML = ""
-        for(i = 0; i<properties; i++){
-            document.getElementsByClassName('middle-section')[0].innerHTML += "<button onclick='manual_click()'>Click me</button>"
-        }
         money++;
         document.getElementById("money").innerHTML = "Money: $" + money
 
         //removing the 'saved' text
         if(document.getElementsByClassName('saveText')[0].innerHTML === "Game Saved"){
-            console.log("count++")
             count1 ++;
         }
         if(count1 === 3){
@@ -277,14 +260,10 @@
 
     }//end of update function
 
-    function manual_click(){
+    function manual_click(){ //add 1 to money when click button
         money++;
         console.log("Add 1")
         document.getElementById("money").innerHTML = "Money: $" + money
-    }
-
-    for (i=0; i<1000; i++){
-        document.getElementById("revenue").innerHTML = "Revnue: $" + i + "/h"
     }
 
     setInterval(update, 1000) //update the game every 1000ms
@@ -324,6 +303,69 @@
     }
 
     window.onbeforeunload = function() {
-        save()
+        save() //auto-save when leaving the window
     }
+    
+    //Click save button
+    function save(){
+        firebase.database().ref('users/' + userId).update({money: money}).catch(function(error){alert("Error occured" + error);});
+        console.log("Saved")
+        document.getElementsByClassName('saveText')[0].innerHTML = "Game Saved"
+        
+    }
+
+
+    class Properties{
+        constructor(name, rate, harm, text){
+            this.name = name;
+            this.rate = rate;
+            this.harm = harm;
+            this.text = text;
+        }
+    }
+     
+    let store = { //properties that can be bought in the store
+        "house":{
+            "name":"House",
+            "rate": 100,
+            "harm": 3,
+            "text": "Testing",
+            "limit": 5
+        },
+
+        "apartment":{
+            "name":"Apartment",
+            "rate": 300,
+            "harm": 2,
+            "text": "Testing2",
+            "limit:": 4         
+        }
+    }
+
+    let myProperties = new Object(); //properties bought
+
+    function buy(s){ //buying a property
+        if (!(s in myProperties)){
+            myProperties[s] = [];
+        }
+        if (myProperties[s].length < store[s]['limit']){
+            myProperties[s].push(new Properties(s, store[s]['rate'], store[s]['harm'], store[s]['text']))
+        }
+        else{
+            console.log("Cannot buy more!")
+        }
+    }
+
+    buy('house')
+    buy('house')
+    buy('apartment')
+    console.log(myProperties['house'].length)
+
+
+    function display(){ //display bought properties on screen
+        for (int i; i<myproperties.lengt; i++){
+            
+        }
+    }
+
 </script>
