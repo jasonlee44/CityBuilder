@@ -14,7 +14,7 @@
     <div class="top-sections" id="revenue" style="float:left;">Revenue: $0/h</div>
     <div class="top-sections" id="money" style="float:right;">Money: $0 <img src='./images/money.png' class='moneyImg'></div> <br><br>
     <div class="top-sections" id="properties" style="float:left;">Properties: 0</div>
-    <div class="top-sections" id="harm" style="float:right;">Harm: 0% <img src='./images/warning.png' class='harmImg'></div> <br><br>
+    <div class="top-sections" class="progress" id="harm" style="float:right;">Harm: 0% <img src='./images/warning.png' class='harmImg'></div> <br><br>
 
     <div class='middle-section'>
 
@@ -42,6 +42,7 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2 style='text-align: center;'>Store</h2>
+            <div id="store-content"></div>
         </div>
     </div>
 
@@ -184,6 +185,26 @@
         width: 85%;
         float: left;
     }
+
+    #harm {
+        position:relative;
+    }
+
+    #harm:after {
+        content:'\A';
+        position: absolute;
+        background:yellow;
+        top:0; bottom:0;
+        right:0; 
+        width: var(--percent-harm);
+        z-index: -1;
+        border-radius: 25px;;
+    }
+
+    :root{
+        --percent-harm: 0%;
+    }
+
 </style>
 <script>
     // Your web app's Firebase configuration
@@ -201,29 +222,25 @@
 
     // Get the modal
     var modal = document.getElementById("myModal");
-
     // Get the button that opens the modal
     var btn = document.getElementById("storeBtn");
-
     // Get the <span> element that closes the modal
     var span = document.getElementsByClassName("close")[0];
-
     // When the user clicks the button, open the modal 
     btn.onclick = function() {
         modal.style.display = "block";
     }
-
     // When the user clicks on <span> (x), close the modal
     span.onclick = function() {
         modal.style.display = "none";
     }
-
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = function(event) {
         if (event.target == modal) {
             modal.style.display = "none";
         }
     }
+
 
     //firebase will store variables below
     var money = 0;
@@ -236,8 +253,8 @@
     var options = []
 
     //Updating the game
-    function update(){ 
-        money++;
+    function update() {
+        // money++;
         document.getElementById("money").innerHTML = "Money: $" + money
 
         //removing the 'saved' text
@@ -259,13 +276,6 @@
         }
 
     }//end of update function
-
-    function manual_click(){ //add 1 to money when click button
-        money++;
-        console.log("Add 1")
-        document.getElementById("money").innerHTML = "Money: $" + money
-    }
-
     setInterval(update, 1000) //update the game every 1000ms
 
     // Check to see if you are logged in
@@ -314,7 +324,6 @@
         
     }
 
-
     class Properties{
         constructor(name, rate, harm, text){
             this.name = name;
@@ -327,6 +336,7 @@
     let store = { //properties that can be bought in the store
         "house":{
             "name":"House",
+            "cost": 100,
             "rate": 100,
             "harm": 3,
             "text": "Testing",
@@ -335,10 +345,29 @@
 
         "apartment":{
             "name":"Apartment",
+            "cost": 100,
             "rate": 300,
             "harm": 2,
             "text": "Testing2",
-            "limit:": 4         
+            "limit": 4
+        },
+
+        "neighbourhood":{
+            "name":"Neighbourhood",
+            "cost": 100,
+            "rate": 500,
+            "harm": 7,
+            "text": "Testing3",
+            "limit": 4
+        },
+
+        "park":{
+            "name":"Park",
+            "cost": 100,
+            "rate": 100,
+            "harm": -4,
+            "text": "Testing4",
+            "limit": 6
         }
     }
 
@@ -354,18 +383,41 @@
         else{
             console.log("Cannot buy more!")
         }
+        console.log(myProperties)
     }
 
-    buy('house')
-    buy('house')
-    buy('apartment')
-    console.log(myProperties['house'].length)
+    // Function for displaying items in store
+    console.log(store)
 
-
-    function display(){ //display bought properties on screen
-        for (int i; i<myproperties.lengt; i++){
-            
+    function displayStore(){
+        document.getElementById("store-content").innerHTML = ""
+        for(var key in store){
+            console.log(store[key]['name'])
+            document.getElementById("store-content").innerHTML += `
+            <div style='font-size: 25px;'><img src='./images/`+key+`.png' width=200px> ` + store[key]['name' ]+ ` | Cost: $` +store[key]['cost']+ ` | Revenue: $` +store[key]['rate']+ `/h | 
+            Harm: ` +store[key]['harm']+ `% | ` +store[key]['text']+ ` <button id='`+key+`' onclick="buySelected(this.id)">Buy</button> </div>
+            `
         }
     }
+
+    displayStore()
+
+    function buySelected(clickedID){ //when clicked "Buy"
+        buy(clickedID);
+    }
+
+    function calculateHarm(){
+        var temp = 0
+        for(var key in myProperties){
+            temp += myProperties[key]['harm']
+        }
+        document.documentElement.style.setProperty('--percent-harm', temp+'%');
+    }
+
+    // function calculateRevenue(){
+
+    // }
+
+    document.documentElement.style.setProperty('--percent-harm', '30%')
 
 </script>
