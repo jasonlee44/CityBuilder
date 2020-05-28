@@ -11,8 +11,8 @@
 <body onload="update()">
     <!-- 4 sections at the top -->
     <div>
-        <h1 class='title' style="float:left;">Welcome to my game!</h1>
-        <div style='float:right;'>Welcome Jason</div>
+        <h1 class='title' style="float:left;">City Manager</h1>
+        <div style='float:right;' id="welcome">Welcome</div>
     </div> <br><br><br><br>
     <div class="top-sections" id="revenue" style="float:left;">Revenue: $0/h</div>
     <div class="top-sections" id="money" style="float:right;">Money: $0 <img src='./images/money.png' class='moneyImg'></div> <br><br>
@@ -31,6 +31,7 @@
 
     <div class="saveText"></div>
 
+
     <!-- Store button -->
     <button id="storeBtn">Store</button>
 
@@ -39,14 +40,13 @@
         <!-- Pop-up content -->
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2 style='text-align: center;'>Store</h2>
+            <h2 style='text-align: center;' id="current-balance">Current Balance:</h2>
             <div id="store-content"></div>
         </div>
     </div>
 
-    <button onclick="signin()">Sign In</button>
-    <button onclick="signout()">Sign Out</button>
-
+    <p>Jason Lee | &copy; 2020 City Manager | <a href="rules.html">How to play</a> | <a href="" onclick="signout()">Sign out</a></p>
+    
 </body>
 </html>
 
@@ -55,14 +55,14 @@
         font-family: 'Baloo Bhaina 2';
         margin: 6%;
         margin-top: 3%;
-        background-color: white;
+        background-color: rgb(243, 243, 243);
     }
     .top-sections{
         font-size: 30px; 
         border: solid 2px black;
         border-radius: 25px;
         height:53px;
-        width: 300px;
+        width: 350px;
         text-align: left;
         padding-left: 10px;
         
@@ -72,7 +72,7 @@
         display: none; /* Hidden by default */
         position: fixed; /* Stay in place */
         z-index: 1; /* Sit on top */
-        padding-top: 100px; /* Location of the box */
+        padding-top: 25px; /* Location of the box */
         left: 0;
         top: 0;
         width: 100%; /* Full width */
@@ -107,7 +107,7 @@
 
     #storeBtn{
         font-family: 'Baloo Bhaina 2';
-        margin-top:10%;
+        margin-top:5%;
         margin-left:94%;
         width: 120px;
         height: 120px;
@@ -172,15 +172,17 @@
     }
     .saveText{
         margin-left: 93%;
+        height: 10px;
     }
 
     /* Middle section */
     .middle-section{
         background-image: url('./images/grass.png');
+        background-attachment:scroll;
         margin-top: 30px;
         margin-left: 15px;
         border: black 1px solid;
-        height: 500px;
+        height: 600px;
         width: 87%;
         float: left;
         overflow: auto;
@@ -266,7 +268,7 @@
     function update() {
         // Updating money
         money = (parseFloat(money) + parseFloat(revenue/3600)).toFixed(2)
-        document.getElementById("money").innerHTML = "Money: $" + money
+        document.getElementById("money").innerHTML = "Money: $" + money +"<img src='./images/money.png' class='moneyImg'>"
 
         //removing the 'saved' text
         if(document.getElementsByClassName('saveText')[0].innerHTML === "Game Saved"){
@@ -286,6 +288,8 @@
             count2 = 0;
         }
 
+        document.getElementById("current-balance").innerHTML = "Current Balance: " +money
+
     }//end of update function
     setInterval(update, 1000) //update the game every 1000ms
 
@@ -299,12 +303,35 @@
             userEmail = user.email // you can also get .displayName, .photoURL, .email
             firebase.database().ref('users/' + userId).update({email: userEmail}).catch(function(error){alert("Error occured" + error);});
             firebase.database().ref('users/' + userId).update({name: user.displayName}).catch(function(error){alert("Error occured" + error);});
-            
-            //Get value of money
+
+            document.getElementById('welcome').innerHTML = "Welcome "+user.displayName
+
             firebase.database().ref('users/' + userId).once('value', function(snapshot) {
-                money = snapshot.val()['money'];
-                document.getElementsByClassName("saveBtn")[0].disabled = false;
-            });
+                if (snapshot.val()['money'] == null){ //new user
+                    money = 100;
+                    firebase.database().ref('users/' + userId).update({money: money}).catch(function(error){alert("Error occured while saving. " + error);});
+                    myProperties = {};
+                    buy('house')
+                    document.getElementsByClassName("saveBtn")[0].disabled = false; 
+                    firebase.database().ref('users/' + userId).update({properties: myProperties}).catch(function(error){alert("Error occured while saving. " + error);});
+                    displayOwnedProperties();
+                    calculateHarm();
+                    calculateRevenue()
+                    numberProperties()
+
+                }
+                else{ //returning user
+                    money = snapshot.val()['money'];
+                    document.getElementsByClassName("saveBtn")[0].disabled = false; 
+                    myProperties = snapshot.val()['properties'];
+                    console.log(myProperties)
+                    displayOwnedProperties();
+                    calculateHarm();
+                    calculateRevenue()
+                    numberProperties()
+                }
+            });     
+
         }
     });
 
@@ -315,6 +342,7 @@
     }
 
     function signout(){
+        save()
         firebase.auth().signOut().then(function() {
         // Sign-out successful.
         }).catch(function(error) {
@@ -330,6 +358,7 @@
     //Click save button
     function save(){
         firebase.database().ref('users/' + userId).update({money: money}).catch(function(error){alert("Error occured while saving. " + error);});
+        firebase.database().ref('users/' + userId).update({properties: myProperties}).catch(function(error){alert("Error occured while saving. " + error);});
         console.log("Saved")
         document.getElementsByClassName('saveText')[0].innerHTML = "Game Saved"
         
@@ -347,11 +376,11 @@
     let store = { //items that can be bought in the store
         "house":{
             "name":"House",
-            "cost": 100,
-            "rate": 100,
+            "cost": 50,
+            "rate": 75,
             "harm": 3,
-            "text": "Testing",
-            "limit": 5
+            "text": "Houses can provide a home for a family, but apartments are more environmentally friendly",
+            "limit": 3
         },
 
         "apartment":{
@@ -368,7 +397,7 @@
             "cost": 300,
             "rate": 500,
             "harm": 5,
-            "text": "Testing3",
+            "text": "Neighbourhoods are just many houses in one area",
             "limit": 4
         },
 
@@ -388,11 +417,19 @@
             "harm": 6,
             "text": "Restaurants are good for the community but can create a lot of food waste and pollution",
             "limit": 3
+        },
+
+        "grocery":{
+            "name":"Grocery Store",
+            "cost": 700,
+            "rate": 600,
+            "harm": 9,
+            "text": "Many products use packaging that end up in landfills",
+            "limit": 4
         }
     }
 
-    let myProperties = new Object(); //properties bought
-
+    let myProperties = {};
     var purchase_order = []
 
     function buy(s){ //buying a property
@@ -422,11 +459,11 @@
         for(var key in store){
             // console.log("Store: "+store[key]['name'])
             document.getElementById("store-content").innerHTML += `
-            <div style='font-size: 18px;'><img src='./images/`+key+`.png' width=200px> ` + store[key]['name' ]+ ` | Cost: $` +store[key]['cost']+ ` | Revenue: $` +store[key]['rate']+ `/h | 
+            <div style='font-size: 14px;'><img src='./images/`+key+`.png' width=190px> ` + store[key]['name' ]+ ` | Cost: $` +store[key]['cost']+ ` | Revenue: $` +store[key]['rate']+ `/h | 
             Harm: ` +store[key]['harm']+ `% | ` +store[key]['text']+ ` | <button id='`+key+`' class="cool-btn" onclick="buySelected(this.id)">Buy</button> </div>
             `
         }
-        document.getElementById("store-content").innerHTML += '<br><br><br><div></div>'
+        document.getElementById("store-content").innerHTML += 'More coming soon...<br><br><br><div></div>'
     }
     displayStore()
 
@@ -436,6 +473,7 @@
         numberProperties() //display number of properties
         calculateRevenue()
         displayOwnedProperties()
+        save()
     }
 
     function numberProperties(){ //display number of properties
@@ -481,11 +519,33 @@
         document.getElementById('middle-section').innerHTML = ""
         for (key in myProperties){
             for (i=0; i<myProperties[key].length; i++){
-                document.getElementById('middle-section').innerHTML += `<div><img src='./images/`+key+`.png' width=200px></div>`
+                if(myProperties[key][i]['margin'] == null){
+                    m = Math.floor(Math.random() * 600)
+                    document.getElementById('middle-section').innerHTML += `<div style='margin-left:`+m+`px; margin-top: 30px;'><img src='./images/`+key+`.png' width=200px></div>
+                    <p style='margin-left:`+ (m+100) +`px; margin-top: -27px;'>`+store[key]['name']+`</p>
+                    <p style='margin-left:`+ (m+100) +`px; margin-top: -27px;'>Rate: `+myProperties[key][i]['rate']+`</p>
+                    <p style='margin-left:`+ (m+100) +`px; margin-top: -27px;'>Harm: `+myProperties[key][i]['harm']+`%</p>`
+                    myProperties[key][i]['margin'] = m;
+                }
+                else{
+                    m = myProperties[key][i]['margin']
+                    document.getElementById('middle-section').innerHTML += `<div style='margin-left:`+m+`px; margin-top: 30px;'><img src='./images/`+key+`.png' width=200px></div>
+                    <p style='margin-left:`+ (m+100) +`px; margin-top: -27px;'>`+store[key]['name']+`</p>
+                    <p style='margin-left:`+ (m+100) +`px; margin-top: -27px;'>Revenue: `+myProperties[key][i]['rate']+`/h</p>
+                    <p style='margin-left:`+ (m+100) +`px; margin-top: -27px;'>Harm: `+myProperties[key][i]['harm']+`%</p>`
+                }
             }
         }
     }
 
-    console.log(myProperties)
+    function resetPosition(){
+        for (key in myProperties){
+            for (i=0; i<myProperties[key].length; i++){
+                myProperties[key][i]['margin'] = null;
+            }
+        }
+        displayOwnedProperties()
+    }
+    
 
 </script>
