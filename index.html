@@ -10,20 +10,18 @@
 </head>
 <body onload="update()">
     <!-- 4 sections at the top -->
-    <h1 class='title'>Welcome to my game!</h1>
+    <div>
+        <h1 class='title' style="float:left;">Welcome to my game!</h1>
+        <div style='float:right;'>Welcome Jason</div>
+    </div> <br><br><br><br>
     <div class="top-sections" id="revenue" style="float:left;">Revenue: $0/h</div>
     <div class="top-sections" id="money" style="float:right;">Money: $0 <img src='./images/money.png' class='moneyImg'></div> <br><br>
     <div class="top-sections" id="properties" style="float:left;">Properties: 0</div>
     <div class="top-sections" class="progress" id="harm" style="float:right;">Harm: 0% <img src='./images/warning.png' class='harmImg'></div> <br><br>
 
-    <div class='middle-section'>
+    <div class='middle-section' id='middle-section'>
 
     </div>
-
-    <!-- Settings button
-    <button class='settingsBtn' onclick="settings()">
-        <img src="./images/settings.png" class='settingsImg'>
-    </button> -->
 
     <!-- Save button -->
     <button class='saveBtn' disabled onclick="save()">
@@ -173,23 +171,36 @@
         outline: none;
     }
     .saveText{
-        margin-left: 90%;
+        margin-left: 93%;
     }
 
     /* Middle section */
     .middle-section{
+        background-image: url('./images/grass.png');
         margin-top: 30px;
         margin-left: 15px;
         border: black 1px solid;
         height: 500px;
-        width: 85%;
+        width: 87%;
         float: left;
+        overflow: auto;
     }
 
+    /* Buy button */
+    .cool-btn{
+        width: 50px;
+        border-radius: 10px;
+        background-color: white;
+        border: 2px black solid;
+    }
+    .cool-btn:hover{
+        opacity: 0.7;
+    }
+
+    /* Display harm % */
     #harm {
         position:relative;
     }
-
     #harm:after {
         content:'\A';
         position: absolute;
@@ -200,7 +211,6 @@
         z-index: -1;
         border-radius: 25px;;
     }
-
     :root{
         --percent-harm: 0%;
     }
@@ -243,7 +253,7 @@
 
 
     //firebase will store variables below
-    var money = 0;
+    var money;
     var revenue = 0;
     var harm = 0;
 
@@ -254,7 +264,8 @@
 
     //Updating the game
     function update() {
-        // money++;
+        // Updating money
+        money = (parseFloat(money) + parseFloat(revenue/3600)).toFixed(2)
         document.getElementById("money").innerHTML = "Money: $" + money
 
         //removing the 'saved' text
@@ -318,7 +329,7 @@
     
     //Click save button
     function save(){
-        firebase.database().ref('users/' + userId).update({money: money}).catch(function(error){alert("Error occured" + error);});
+        firebase.database().ref('users/' + userId).update({money: money}).catch(function(error){alert("Error occured while saving. " + error);});
         console.log("Saved")
         document.getElementsByClassName('saveText')[0].innerHTML = "Game Saved"
         
@@ -333,7 +344,7 @@
         }
     }
      
-    let store = { //properties that can be bought in the store
+    let store = { //items that can be bought in the store
         "house":{
             "name":"House",
             "cost": 100,
@@ -345,79 +356,136 @@
 
         "apartment":{
             "name":"Apartment",
-            "cost": 100,
+            "cost": 150,
             "rate": 300,
             "harm": 2,
-            "text": "Testing2",
+            "text": "Apartments take up less land because they are built vertically",
             "limit": 4
         },
 
         "neighbourhood":{
             "name":"Neighbourhood",
-            "cost": 100,
+            "cost": 300,
             "rate": 500,
-            "harm": 7,
+            "harm": 5,
             "text": "Testing3",
             "limit": 4
         },
 
         "park":{
             "name":"Park",
-            "cost": 100,
+            "cost": 400,
             "rate": 100,
             "harm": -4,
-            "text": "Testing4",
+            "text": "Parks are generally good for the environment because they provide green spaces in cities",
             "limit": 6
+        },
+
+        "restaurant":{
+            "name":"Restaurant",
+            "cost": 600,
+            "rate": 400,
+            "harm": 6,
+            "text": "Restaurants are good for the community but can create a lot of food waste and pollution",
+            "limit": 3
         }
     }
 
     let myProperties = new Object(); //properties bought
 
+    var purchase_order = []
+
     function buy(s){ //buying a property
         if (!(s in myProperties)){
             myProperties[s] = [];
         }
-        if (myProperties[s].length < store[s]['limit']){
-            myProperties[s].push(new Properties(s, store[s]['rate'], store[s]['harm'], store[s]['text']))
+        if (money >= store[s]['cost']){ //checking if user has enough money
+            if (myProperties[s].length < store[s]['limit']){ //checking if user can still buy
+                myProperties[s].push(new Properties(s, store[s]['rate'], store[s]['harm'], store[s]['text']))
+                console.log("Bought: "+s)
+                money -= store[s]['cost']
+            }
+            else{
+                console.log("Cannot purchase any more " + s +"s")
+                alert("Cannot purchase any more " + s +"s")
+            }
         }
-        else{
-            console.log("Cannot buy more!")
+        else{ //user does not have enough money
+            console.log("Not enough money")
+            alert("You do not have enough money to purchase this")
         }
-        console.log(myProperties)
+        
     }
 
-    // Function for displaying items in store
-    console.log(store)
-
-    function displayStore(){
+    function displayStore(){ // Function for displaying items in store
         document.getElementById("store-content").innerHTML = ""
         for(var key in store){
-            console.log(store[key]['name'])
+            // console.log("Store: "+store[key]['name'])
             document.getElementById("store-content").innerHTML += `
-            <div style='font-size: 25px;'><img src='./images/`+key+`.png' width=200px> ` + store[key]['name' ]+ ` | Cost: $` +store[key]['cost']+ ` | Revenue: $` +store[key]['rate']+ `/h | 
-            Harm: ` +store[key]['harm']+ `% | ` +store[key]['text']+ ` <button id='`+key+`' onclick="buySelected(this.id)">Buy</button> </div>
+            <div style='font-size: 18px;'><img src='./images/`+key+`.png' width=200px> ` + store[key]['name' ]+ ` | Cost: $` +store[key]['cost']+ ` | Revenue: $` +store[key]['rate']+ `/h | 
+            Harm: ` +store[key]['harm']+ `% | ` +store[key]['text']+ ` | <button id='`+key+`' class="cool-btn" onclick="buySelected(this.id)">Buy</button> </div>
             `
         }
+        document.getElementById("store-content").innerHTML += '<br><br><br><div></div>'
     }
-
     displayStore()
 
     function buySelected(clickedID){ //when clicked "Buy"
         buy(clickedID);
+        calculateHarm() //display harm %
+        numberProperties() //display number of properties
+        calculateRevenue()
+        displayOwnedProperties()
     }
 
-    function calculateHarm(){
+    function numberProperties(){ //display number of properties
+        var num = 0
+        for(var key in myProperties){
+            for(i=0; i<myProperties[key].length; i++){
+                num++;
+            }
+        }
+        document.getElementById("properties").innerHTML = "Properties: " +num
+
+    }
+
+    function calculateHarm(){ //calculate harm % and display on screen
         var temp = 0
         for(var key in myProperties){
-            temp += myProperties[key]['harm']
+            for(i=0; i<myProperties[key].length; i++){
+                temp += myProperties[key][0]['harm']
+            }
         }
-        document.documentElement.style.setProperty('--percent-harm', temp+'%');
+        if (temp < 100){
+            document.documentElement.style.setProperty('--percent-harm', temp+'%');
+        }
+        else{
+            document.documentElement.style.setProperty('--percent-harm', '100%');
+        }
+        document.getElementById('harm').innerHTML = `Harm: `+temp+`% <img src='./images/warning.png' class='harmImg'>`
+        harm = temp;
     }
 
-    // function calculateRevenue(){
+    function calculateRevenue(){
+        var r = 0
+        for(var key in myProperties){
+            for(i=0; i<myProperties[key].length; i++){
+                r += myProperties[key][0]['rate']
+            }
+        }
+        document.getElementById('revenue').innerHTML = "Revenue: $"+r+"/h"
+        revenue = r;
+    }
 
-    // }
+    function displayOwnedProperties(){ //displaying properties that the user owns
+        document.getElementById('middle-section').innerHTML = ""
+        for (key in myProperties){
+            for (i=0; i<myProperties[key].length; i++){
+                document.getElementById('middle-section').innerHTML += `<div><img src='./images/`+key+`.png' width=200px></div>`
+            }
+        }
+    }
 
-    document.documentElement.style.setProperty('--percent-harm', '30%')
+    console.log(myProperties)
 
 </script>
