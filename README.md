@@ -1,4 +1,4 @@
-# unit3
+# City Builder Game Web App
 https://jasonlee44.github.io/unit3/
 
 Final Coding Project
