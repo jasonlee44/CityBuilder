@@ -1,7 +1,7 @@
 # unit3
 https://jasonlee44.github.io/unit3/
 
-Year 10 Final Coding Project
+Final Coding Project
 
 HOW TO PLAY:
 
